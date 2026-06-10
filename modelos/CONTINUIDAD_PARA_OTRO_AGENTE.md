@@ -415,6 +415,23 @@ identidad de modelos. Las métricas usan azul, morado, amarillo y rosa.
 14. Tabla ODPE con filtros.
 15. Definiciones y cautelas.
 
+### Actualización automática en GitHub
+
+El workflow `.github/workflows/pages.yml` se ejecuta con cada cambio en
+`main`. Solo recalcula cuando detecta cambios en:
+
+- `insumos/descargas_modulo/*.csv`;
+- `insumos/maestras/*.xlsx`;
+- `modelos/oraculo_onpe.py`;
+- `modelos/dashboard_onpe.py`;
+- `modelos/requirements.txt`.
+
+Cuando hay nueva data, ejecuta `oraculo_onpe.py --force`, regenera el dashboard,
+crea un commit automático con `modelos/cache`, `modelos/salidas` y
+`modelos/panel`, y despliega esa misma versión en GitHub Pages. No separar el
+recalculo y el despliegue en workflows dependientes: los commits creados con
+`GITHUB_TOKEN` no disparan normalmente otro workflow de `push`.
+
 Las nuevas visualizaciones deben agregarse debajo o dentro de una nueva seccion
 compatible con la grilla existente. No borrar ni reemplazar componentes.
 

@@ -9,6 +9,28 @@ cada actualización de la rama `main`:
 
 https://noamlv.github.io/segunda_vuelta_escenarios/
 
+## Actualizar con un nuevo CSV
+
+1. En GitHub, abrir `insumos/descargas_modulo/`.
+2. Seleccionar **Add file > Upload files**.
+3. Subir el nuevo CSV sin borrar los cortes anteriores.
+4. Confirmar el cambio directamente en la rama `main`.
+
+La acción `Publicar dashboard en GitHub Pages` detecta el CSV, instala las
+dependencias, recalcula los modelos, regenera el panel, guarda los resultados
+generados en el repositorio y publica la nueva versión.
+
+También se puede ejecutar manualmente desde **Actions > Publicar dashboard en
+GitHub Pages > Run workflow**. Esta opción es útil para forzar un recálculo
+cuando se modifica un CSV conservando el mismo nombre.
+
+El nombre del CSV debe conservar el patrón utilizado por las descargas de la
+ONPE, por ejemplo:
+
+```text
+PR-ESP_Presidencial_2026-06-10_09-58-AM_97.541.csv
+```
+
 ## Carpetas
 
 - `scripts/`: código R y Python.

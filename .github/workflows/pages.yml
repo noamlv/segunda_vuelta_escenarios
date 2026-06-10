@@ -5,9 +5,15 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      recalcular_modelos:
+        description: Recalcular modelos y panel aunque no haya un CSV nuevo
+        required: true
+        type: boolean
+        default: true
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -24,6 +30,81 @@ jobs:
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detectar cambios que requieren procesamiento
+        id: changes
+        shell: bash
+        run: |
+          model_refresh=false
+          panel_refresh=false
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ "${{ inputs.recalcular_modelos }}" == "true" ]]; then
+              model_refresh=true
+              panel_refresh=true
+            fi
+          else
+            before="${{ github.event.before }}"
+            current="${{ github.sha }}"
+
+            if git cat-file -e "${before}^{commit}" 2>/dev/null; then
+              changed_files="$(git diff --name-only "$before" "$current")"
+            else
+              changed_files="$(git show --pretty="" --name-only "$current")"
+            fi
+
+            if grep -Eq \
+              '^(insumos/descargas_modulo/.*\.csv|insumos/maestras/.*\.xlsx|modelos/oraculo_onpe\.py|modelos/requirements\.txt)$' \
+              <<<"$changed_files"; then
+              model_refresh=true
+              panel_refresh=true
+            elif grep -Eq '^modelos/dashboard_onpe\.py$' <<<"$changed_files"; then
+              panel_refresh=true
+            fi
+          fi
+
+          echo "model_refresh=$model_refresh" >> "$GITHUB_OUTPUT"
+          echo "panel_refresh=$panel_refresh" >> "$GITHUB_OUTPUT"
+          echo "Recalcular modelos: $model_refresh"
+          echo "Regenerar panel: $panel_refresh"
+
+      - name: Configurar Python
+        if: steps.changes.outputs.panel_refresh == 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: modelos/requirements.txt
+
+      - name: Instalar dependencias
+        if: steps.changes.outputs.panel_refresh == 'true'
+        run: python -m pip install -r modelos/requirements.txt
+
+      - name: Recalcular modelos
+        if: steps.changes.outputs.model_refresh == 'true'
+        run: python modelos/oraculo_onpe.py --force
+
+      - name: Regenerar dashboard
+        if: steps.changes.outputs.panel_refresh == 'true'
+        run: python modelos/dashboard_onpe.py
+
+      - name: Guardar resultados generados
+        if: steps.changes.outputs.panel_refresh == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add modelos/cache modelos/salidas modelos/panel
+
+          if git diff --cached --quiet; then
+            echo "No hay productos generados nuevos para guardar."
+          else
+            latest_csv="$(find insumos/descargas_modulo -maxdepth 1 -name '*.csv' -print | sort | tail -1)"
+            git commit -m "Actualizar resultados con $(basename "$latest_csv")"
+            git push
+          fi
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
