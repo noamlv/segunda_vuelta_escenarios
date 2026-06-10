@@ -1,0 +1,156 @@
+{
+  "latest_file": "PR-ESP_Presidencial_2026-06-10_09-58-AM_97.541.csv",
+  "latest_timestamp": "2026-06-10T09:58:00",
+  "master_mesas": 92766,
+  "counted_mesas": 90498,
+  "pending_mesas": 2268,
+  "weights": {
+    "Arrastre nacional": 0.160180457903397,
+    "Jerarquico territorial": 0.5321410861248952,
+    "ODPE ponderado": 0.30767845597170773
+  },
+  "probability_keiko": 0.84534,
+  "ensemble": {
+    "modelo": "Ensamble por backtesting",
+    "fp_final": 9233133.29731771,
+    "jp_final": 9195884.593011178,
+    "fp_pct": 0.5010105992768632,
+    "jp_pct": 0.4989894007231368,
+    "margen_votos_fp": 37248.7043065317,
+    "margen_pp_fp": 0.20211985537264543,
+    "validos_pendientes": 432732.8903288897
+  },
+  "simulation_margin_quantiles": {
+    "0.025": -23976.77252450287,
+    "0.5": 45543.08434082195,
+    "0.975": 61871.25213335096
+  },
+  "model_metadata": {
+    "observado": {
+      "descripcion": "Solo resume los votos ya contabilizados. No hace proyección.",
+      "mesas_contabilizadas": 90498,
+      "votos_validos": 17996285.0,
+      "formula": "fp_final = fp_observado"
+    },
+    "arrastre_nacional": {
+      "descripcion": "Imputa a lo pendiente la participación y el reparto nacional observado. Supone ingreso aleatorio.",
+      "paquete": "numpy, pandas",
+      "parametros": {
+        "p_fp_nacional": 0.49958,
+        "valid_rate_nacional": 0.678072
+      },
+      "formula": "fp_pendiente = electores_pendientes × valid_rate × p_fp_nacional",
+      "limitaciones": "No considera heterogeneidad territorial. Asume que mesas pendientes tienen el mismo comportamiento que las contabilizadas."
+    },
+    "jerarquico_territorial": {
+      "descripcion": "Estima participación válida y preferencia por mesa usando ámbito, departamento, provincia y distrito. Los grupos pequeños se contraen hacia su nivel superior.",
+      "paquete": "numpy, pandas",
+      "jerarquia": [
+        {
+          "nivel": "ambito",
+          "columnas": [
+            "ambito"
+          ],
+          "prior_weight": 20000,
+          "descripcion": "Contracción hacia nivel ambito"
+        },
+        {
+          "nivel": "ambito_region",
+          "columnas": [
+            "ambito",
+            "region"
+          ],
+          "prior_weight": 10000,
+          "descripcion": "Contracción hacia nivel ambito/region"
+        },
+        {
+          "nivel": "ambito_region_provincia",
+          "columnas": [
+            "ambito",
+            "region",
+            "provincia"
+          ],
+          "prior_weight": 3500,
+          "descripcion": "Contracción hacia nivel ambito/region/provincia"
+        },
+        {
+          "nivel": "ambito_region_provincia_distrito",
+          "columnas": [
+            "ambito",
+            "region",
+            "provincia",
+            "distrito"
+          ],
+          "prior_weight": 1200,
+          "descripcion": "Contracción hacia nivel ambito/region/provincia/distrito"
+        }
+      ],
+      "hierarchy_stats": {
+        "ambito": {
+          "niveles": 2,
+          "prior_weight": 20000,
+          "mesas_promedio": 45249.0,
+          "electores_promedio": 13270181.5
+        },
+        "ambito_region": {
+          "niveles": 30,
+          "prior_weight": 10000,
+          "mesas_promedio": 3016.6,
+          "electores_promedio": 884678.7666666667
+        },
+        "ambito_region_provincia": {
+          "niveles": 269,
+          "prior_weight": 3500,
+          "mesas_promedio": 336.42379182156134,
+          "electores_promedio": 98663.05947955391
+        },
+        "ambito_region_provincia_distrito": {
+          "niveles": 2069,
+          "prior_weight": 1200,
+          "mesas_promedio": 43.73997100048332,
+          "electores_promedio": 12827.628322861287
+        }
+      },
+      "formula": "p_local = (fp_observado + prior_weight × p_superior) / (valid_observado + prior_weight)",
+      "limitaciones": "Asume que mesas pendientes en un territorio se comportan como las ya contabilizadas en ese territorio."
+    },
+    "odpe_ponderado": {
+      "descripcion": "Repite la lógica de contracción dentro de cada ODPE. Captura patrones específicos de cada oficina descentralizada.",
+      "paquete": "numpy, pandas",
+      "jerarquia": [
+        {
+          "nivel": "ambito",
+          "columnas": [
+            "ambito"
+          ],
+          "prior_weight": 20000,
+          "descripcion": "Contracción hacia nivel ambito"
+        },
+        {
+          "nivel": "ambito_odpe",
+          "columnas": [
+            "ambito",
+            "odpe"
+          ],
+          "prior_weight": 5000,
+          "descripcion": "Contracción hacia nivel ambito/odpe"
+        }
+      ],
+      "odpe_stats": {
+        "n_odpes": 126,
+        "prior_weight": 5000,
+        "mesas_promedio": 718.2380952380952
+      },
+      "formula": "p_odpe = (fp_observado_odpe + prior_weight × p_ambito) / (valid_observado_odpe + prior_weight)",
+      "limitaciones": "Algunas ODPEs pueden tener pocas mesas contabilizadas, lo que aumenta la incertidumbre."
+    },
+    "jee_reportado": {
+      "descripcion": "Suma los votos ya digitados de las actas enviadas al JEE y proyecta las mesas que todavía no aparecen mediante el modelo jerárquico territorial.",
+      "paquete": "numpy, pandas",
+      "mesas_jee_digitadas": 1610,
+      "mesas_no_ingresadas": 658,
+      "formula": "fp_final = fp_observado + fp_jee_digitado + fp_no_ingresadas_proyectadas",
+      "limitaciones": "Es un escenario de admisión, no una predicción sobre la decisión jurídica del JEE."
+    }
+  }
+}

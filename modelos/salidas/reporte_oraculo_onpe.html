@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proyeccion electoral ONPE 2026</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f8fafc; color: #1f2430; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 22px 64px; }
+    header, section { margin-bottom: 34px; }
+    h1, h2 { line-height: 1.15; margin: 0 0 12px; }
+    p, li { line-height: 1.6; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 12px; margin: 18px 0; }
+    .card { background: white; border: 1px solid #e6e8f0; border-radius: 12px; padding: 16px; }
+    .value { font-size: 26px; font-weight: 700; margin-top: 6px; }
+    .muted { color: #6f768a; font-size: 14px; }
+    .warning { border-left: 5px solid #f0986e; background: #ffedde; padding: 14px 16px; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    th, td { text-align: right; padding: 10px; border-bottom: 1px solid #e6e8f0; }
+    th:first-child, td:first-child { text-align: left; }
+    img { width: 100%; height: auto; background: white; border-radius: 8px; }
+    code { background: #eef1f6; padding: 2px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+<main data-report-audience="technical">
+  <header data-contract-section="title">
+    <h1>Proyeccion electoral ONPE 2026</h1>
+    <p class="muted">Corte: 10/06/2026 09:58 | Archivo: PR-ESP_Presidencial_2026-06-10_09-58-AM_97.541.csv</p>
+  </header>
+
+  <section data-contract-section="technical-summary">
+    <h2>Resumen tecnico</h2>
+    <p><strong>Sanchez lidera actualmente el resultado oficial contabilizado por
+    15 099 votos.</strong> Por separado, el ensamble estadistico
+    proyecta como ganador final a Keiko Fujimori, con un margen central de 37 249 votos.
+    La probabilidad condicional de Keiko, mezclando los modelos segun su backtesting, es 84.5%.</p>
+    <div class="kpis">
+      <div class="card"><div class="muted">Lider oficial contabilizado</div><div class="value">Sanchez +15 099</div></div>
+      <div class="card"><div class="muted">Actas contabilizadas</div><div class="value">90,498</div></div>
+      <div class="card"><div class="muted">Actas pendientes/JEE</div><div class="value">2,268</div></div>
+      <div class="card"><div class="muted">JEE digitado + faltantes proyectadas</div><div class="value">Keiko +47 873</div></div>
+    </div>
+    <div class="warning"><strong>Advertencia:</strong> esta es una proyeccion estadistica, no una prediccion
+    sobre decisiones del JEE. Las actas observadas no son una muestra aleatoria y pueden cambiar por
+    resoluciones, anulaciones o correcciones.</div>
+  </section>
+
+  <section data-contract-section="key-findings">
+    <h2>La eleccion sigue dentro de un margen muy estrecho</h2>
+    <p>En las actas oficialmente contabilizadas, Sanchez lidera: Keiko tiene
+    49.958% y Sanchez 50.042%. Para revertir ese resultado,
+    Keiko necesita aproximadamente 51.74% de los votos validos pendientes;
+    los votos ya digitados en las actas JEE le asignan una proporcion suficiente para terminar
+    47 873 votos adelante si fueran admitidos sin cambios.</p>
+    <figure><img src="proyeccion_modelos.png" alt="Proyeccion por modelo"></figure>
+    <p>La dispersion entre modelos representa diferencias en como se trata la composicion territorial
+    de las actas pendientes. El intervalo mixto de 95% va de -23 977 a 61 871
+    votos para el margen de Keiko. El ensamble pondera cada proyeccion segun su error en cortes anteriores.</p>
+    <figure><img src="incertidumbre_margen.png" alt="Distribucion simulada del margen"></figure>
+  </section>
+
+  <section data-contract-section="scope-data-and-metric-definitions">
+    <h2>Alcance, datos y definiciones</h2>
+    <p>Se usa la mesa como unidad. Voto valido equivale a Fuerza Popular mas Juntos por el Peru.
+    El universo proviene de la maestra de mesas y el estado/voto de cada corte proviene de los CSV ONPE.
+    En el ultimo corte hay 17 996 285 votos validos contabilizados y
+    785 069 electores habiles asociados a actas no contabilizadas.</p>
+  </section>
+
+  <section data-contract-section="methodology">
+    <h2>Modelos y validacion retrospectiva</h2>
+    <table><thead><tr><th>Modelo</th><th>Keiko</th><th>Sanchez</th><th>Margen votos Keiko</th></tr></thead>
+    <tbody><tr><td>Resultado observado</td><td>49.958%</td><td>50.042%</td><td>-15 099</td></tr><tr><td>Arrastre nacional</td><td>49.958%</td><td>50.042%</td><td>-15 546</td></tr><tr><td>Jerarquico territorial</td><td>50.135%</td><td>49.865%</td><td>49 576</td></tr><tr><td>ODPE ponderado</td><td>50.118%</td><td>49.882%</td><td>43 414</td></tr><tr><td>JEE reportado + faltantes territoriales</td><td>50.130%</td><td>49.870%</td><td>47 873</td></tr><tr><td>Ensamble por backtesting</td><td>50.101%</td><td>49.899%</td><td>37 249</td></tr></tbody></table>
+    <p><strong>Arrastre nacional:</strong> mantiene participacion y reparto nacional observado.
+    <strong>Jerarquico territorial:</strong> estima cada mesa pendiente mediante distrito, provincia,
+    departamento y ambito, con contraccion hacia niveles superiores.
+    <strong>ODPE ponderado:</strong> usa el patron observado dentro de cada ODPE.
+    <strong>JEE reportado + faltantes territoriales:</strong> usa los votos digitados de las actas
+    enviadas al JEE y proyecta territorialmente las mesas aun no presentes en el extracto.
+    <strong>Ensamble:</strong> pesos por error retrospectivo desde 60% de
+    avance: Arrastre nacional: 16.0%, Jerarquico territorial: 53.2%, ODPE ponderado: 30.8%.</p>
+    <figure><img src="backtesting_modelos.png" alt="Backtesting de modelos"></figure>
+    <p>Error absoluto medio reciente: Jerarquico territorial: 0.169 pp, ODPE ponderado: 0.293 pp, Arrastre nacional: 0.562 pp.</p>
+    <figure><img src="evolucion_margen.png" alt="Evolucion del margen observado"></figure>
+  </section>
+
+  <section data-contract-section="limitations-uncertainty-and-robustness-checks">
+    <h2>Limitaciones e incertidumbre</h2>
+    <ul>
+      <li>El backtesting usa como objetivo el ultimo resultado contabilizado disponible, no un resultado final certificado.</li>
+      <li>Las actas enviadas al JEE tienen un mecanismo de seleccion distinto al ingreso ordinario de actas.</li>
+      <li>La probabilidad de victoria es condicional a los modelos y no incorpora decisiones juridicas extraordinarias.</li>
+      <li>La cobertura ODPE es 99.84%; 147 mesas no tienen cruce ODPE, aunque conservan su geografia ONPE.</li>
+    </ul>
+  </section>
+
+  <section data-contract-section="recommended-next-steps">
+    <h2>Siguiente actualizacion</h2>
+    <p>Al agregar un nuevo CSV a <code>insumos/descargas_modulo</code>, ejecutar
+    <code>python3 modelos/oraculo_onpe.py</code>. El pipeline vuelve a seleccionar el corte mas reciente,
+    recalibra el backtesting y reemplaza este informe.</p>
+  </section>
+
+  <section data-contract-section="further-questions">
+    <h2>Pregunta que puede cambiar la conclusion</h2>
+    <p>La principal incertidumbre es si las actas que salen del JEE conservan el patron electoral de
+    mesas comparables o presentan un sesgo sistematico por tipo de observacion y territorio.</p>
+  </section>
+</main>
+</body>
+</html>
